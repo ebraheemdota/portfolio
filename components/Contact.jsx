@@ -49,7 +49,7 @@ export default function Contact() {
         Open to finding execution gaps in GTM.
       </h2>
       <p className="mb-12 text-base" style={{ color: "#888880" }}>
-        Based in Munich. EU work permit.
+        Based in Munich.
       </p>
 
       <div className="mb-20 flex items-center justify-center gap-4">
