@@ -701,32 +701,55 @@ function ExpandedPeecBlock({ onClose }) {
                   className="relative mt-5 flex justify-center gap-3"
                   style={{ zIndex: 10 }}
                 >
-                  {TOOL_TAGS.map((tool) => (
-                    <a
-                      key={tool.name}
-                      href={PEEC_TOOL_LINKS[tool.name]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Open in new tab"
-                      className="flex cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
-                      style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
-                    >
-                      <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                        {tool.logo}
-                      </span>
-                      <div>
-                        <div
-                          className="text-[13px] font-medium"
-                          style={{ color: "#888880" }}
-                        >
-                          {tool.name}
-                        </div>
-                        <div className="text-[10px]" style={{ color: "#444444" }}>
-                          Open document
+                  {TOOL_TAGS.map((tool) =>
+                    tool.name === "Google Sheets" ? (
+                      <div
+                        key={tool.name}
+                        className="flex items-center gap-2 rounded-[10px] border px-5 py-[10px]"
+                        style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
+                      >
+                        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
+                          {tool.logo}
+                        </span>
+                        <div>
+                          <div
+                            className="text-[13px] font-medium"
+                            style={{ color: "#888880" }}
+                          >
+                            {tool.name}
+                          </div>
+                          <div className="text-[10px]" style={{ color: "#444444" }}>
+                            Available on request
+                          </div>
                         </div>
                       </div>
-                    </a>
-                  ))}
+                    ) : (
+                      <a
+                        key={tool.name}
+                        href={PEEC_TOOL_LINKS[tool.name]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open in new tab"
+                        className="flex cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
+                        style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
+                      >
+                        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
+                          {tool.logo}
+                        </span>
+                        <div>
+                          <div
+                            className="text-[13px] font-medium"
+                            style={{ color: "#888880" }}
+                          >
+                            {tool.name}
+                          </div>
+                          <div className="text-[10px]" style={{ color: "#444444" }}>
+                            Open document
+                          </div>
+                        </div>
+                      </a>
+                    )
+                  )}
                 </div>
               </div>
             )}
