@@ -1,77 +1,155 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-const LINKS = [
-  { label: "Work", id: "work" },
-  { label: "Experience", id: "experience" },
-  { label: "About", id: "about" },
-  { label: "Contact", id: "contact" },
-];
-
-function NavLink({ label, id, isActive }) {
-  return (
-    <a
-      href={`#${id}`}
-      className={`relative text-[15px] font-medium no-underline transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[1.5px] after:w-0 after:bg-[#f97316] after:transition-[width] after:duration-300 after:ease-out after:content-[''] hover:text-[#f5f5f0] hover:after:w-full ${
-        isActive ? "text-[#f5f5f0]" : "text-[#888880]"
-      }`}
-    >
-      {label}
-      {isActive && (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-1 left-0 h-[1.5px] w-full"
-          style={{ backgroundColor: "#f97316" }}
-        />
-      )}
-    </a>
-  );
-}
+'use client';
+import { useState, useEffect } from 'react';
 
 export default function Nav() {
-  const [activeId, setActiveId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const sections = LINKS.map((link) => document.getElementById(link.id)).filter(
-      Boolean
-    );
-    if (sections.length === 0) return undefined;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-50% 0px -50% 0px", threshold: 0 }
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
+  const links = ['Work', 'Experience', 'About', 'Contact'];
+  const ids = ['work', 'experience', 'about', 'contact'];
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMenuOpen(false);
+  };
+
   return (
-    <nav
-      className="fixed top-0 z-[100] flex w-full items-center justify-between px-20 py-6"
-      style={{ background: "transparent", backdropFilter: "blur(12px)" }}
-    >
-      <a
-        href="#"
-        className="text-[18px] font-bold no-underline"
-        style={{ color: "#f5f5f0" }}
-      >
-        Ebraheem Ahmed
-      </a>
-      <ul className="flex list-none items-center gap-10">
-        {LINKS.map((link) => (
-          <li key={link.id}>
-            <NavLink {...link} isActive={activeId === link.id} />
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <>
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        width: '100%',
+        zIndex: 100,
+        padding: isMobile ? '16px 20px' : '24px 80px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: 'rgba(10,10,10,0.8)',
+        backdropFilter: 'blur(12px)',
+        boxSizing: 'border-box'
+      }}>
+        {isMobile ? (
+          <>
+            <button onClick={() => setMenuOpen(!menuOpen)} style={{
+              background: 'none',
+              border: '1px solid #f97316',
+              color: '#f97316',
+              fontSize: '18px',
+              cursor: 'pointer',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              lineHeight: 1,
+              fontFamily: 'inherit',
+              zIndex: 1
+            }}>
+              {menuOpen ? '×' : '☰'}
+            </button>
+
+            <span style={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontSize: '15px',
+              fontWeight: 700,
+              color: '#f5f5f0'
+            }}>
+              Ebraheem Ahmed
+            </span>
+          </>
+        ) : (
+          <>
+            <span style={{fontSize: '18px', fontWeight: 700, color: '#f5f5f0'}}>
+              Ebraheem Ahmed
+            </span>
+
+            <div style={{display: 'flex', gap: '40px'}}>
+              {links.map((link, i) => (
+                <button
+                  key={link}
+                  onClick={() => scrollTo(ids[i])}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#888880',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontWeight: 500
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#f5f5f0'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#888880'}
+                >
+                  {link}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </nav>
+
+      {menuOpen && isMobile && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(10,10,10,0.98)',
+          zIndex: 99,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          padding: '0 40px',
+          gap: '8px',
+          animation: 'slideIn 0.4s ease forwards'
+        }}>
+          <button onClick={() => setMenuOpen(false)} style={{
+            position: 'absolute',
+            top: '20px',
+            right: '24px',
+            background: 'none',
+            border: 'none',
+            color: '#888880',
+            fontSize: '28px',
+            cursor: 'pointer',
+            fontFamily: 'inherit'
+          }}>×</button>
+
+          <p style={{fontSize: '10px', letterSpacing: '0.2em', color: '#f97316', fontWeight: 600, marginBottom: '24px'}}>NAVIGATE</p>
+
+          {links.map((link, i) => (
+            <button
+              key={link}
+              onClick={() => scrollTo(ids[i])}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#f5f5f0',
+                fontSize: '40px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                padding: '8px 0',
+                textAlign: 'left',
+                animation: `fadeInUp 0.4s ease ${i * 0.1}s forwards`,
+                opacity: 0
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = '#f97316'}
+              onMouseLeave={e => e.currentTarget.style.color = '#f5f5f0'}
+            >
+              {link}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 }

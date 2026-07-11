@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const QUADRANTS = [
   {
@@ -47,7 +48,7 @@ const TRAITS = [
 
 function useRevealOnScroll() {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const node = ref.current;
@@ -64,7 +65,15 @@ function useRevealOnScroll() {
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    const fallback = setTimeout(() => {
+      setVisible(true);
+    }, 800);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
 
   return [ref, visible];
@@ -129,16 +138,19 @@ function TraitCard({ icon, title, desc, delay }) {
 }
 
 export default function About() {
+  const isMobile = useIsMobile();
+
   return (
     <section
       id="about"
-      className="mx-auto w-full max-w-[1100px] px-20 py-[120px]"
-      style={{ background: "transparent" }}
+      className="mx-auto w-full max-w-[1100px] py-[120px]"
+      style={{
+        background: "transparent",
+        paddingLeft: isMobile ? "16px" : "80px",
+        paddingRight: isMobile ? "16px" : "80px",
+      }}
     >
-      <div
-        className="grid items-center gap-12"
-        style={{ gridTemplateColumns: "320px 1fr" }}
-      >
+      <div className="grid grid-cols-1 items-center gap-[48px] md:grid-cols-[320px_1fr]">
         <div
           className="relative overflow-hidden rounded-2xl"
           style={{
@@ -170,7 +182,7 @@ export default function About() {
             The person behind the work.
           </h2>
 
-          <div className="mb-6 grid grid-cols-2 gap-6">
+          <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
             {QUADRANTS.map((quadrant, index) => (
               <Quadrant key={quadrant.label} {...quadrant} delay={index * 150} />
             ))}
@@ -178,7 +190,7 @@ export default function About() {
 
           <div className="my-5 h-px w-full" style={{ backgroundColor: "#1e1e1e" }} />
 
-          <div className="grid grid-cols-4 items-stretch gap-[10px]">
+          <div className="grid grid-cols-1 items-stretch gap-[10px] md:grid-cols-4">
             {TRAITS.map((trait, index) => (
               <TraitCard key={trait.title} {...trait} delay={index * 100} />
             ))}

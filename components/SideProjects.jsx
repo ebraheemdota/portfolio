@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const FEATURE_TAGS = [
   "Task management",
@@ -150,18 +151,32 @@ function ScreenshotCarousel() {
 
 function StatCard({ target, duration, label, active }) {
   const value = useCountUp(target, duration, active);
+  const isMobile = useIsMobile();
 
   return (
     <div
       className="min-w-[140px] rounded-xl border px-10 py-6"
-      style={{ backgroundColor: "#141414", borderColor: "#222222" }}
+      style={{
+        backgroundColor: "#141414",
+        borderColor: "#222222",
+        padding: isMobile ? "10px 8px" : undefined,
+        flex: isMobile ? 1 : undefined,
+        minWidth: isMobile ? 0 : undefined,
+      }}
     >
-      <div className="text-[36px] font-bold leading-none" style={{ color: "#f97316" }}>
+      <div
+        className="text-[36px] font-bold leading-none"
+        style={{ color: "#f97316", fontSize: isMobile ? "22px" : undefined }}
+      >
         {value}
       </div>
       <div
         className="mt-1.5 text-[10px] font-semibold tracking-[0.12em]"
-        style={{ color: "#888880" }}
+        style={{
+          color: "#888880",
+          fontSize: isMobile ? "8px" : undefined,
+          letterSpacing: isMobile ? "0.08em" : undefined,
+        }}
       >
         {label}
       </div>
@@ -171,7 +186,8 @@ function StatCard({ target, duration, label, active }) {
 
 export default function SideProjects() {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const node = ref.current;
@@ -188,25 +204,32 @@ export default function SideProjects() {
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    const fallback = setTimeout(() => {
+      setVisible(true);
+    }, 800);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
 
   return (
     <section
       ref={ref}
       id="projects"
-      className="w-full px-20 py-[120px]"
+      className="w-full py-[120px]"
       style={{
         background: "transparent",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(30px)",
         transition: "opacity 0.6s ease, transform 0.6s ease",
+        paddingLeft: isMobile ? "16px" : "80px",
+        paddingRight: isMobile ? "16px" : "80px",
       }}
     >
-      <div
-        className="grid items-end gap-[60px]"
-        style={{ gridTemplateColumns: "1fr 1fr" }}
-      >
+      <div className="grid grid-cols-1 items-end gap-[60px] md:grid-cols-2">
         <div>
           <p
             className="mb-4 text-[10px] font-semibold tracking-[0.2em]"
@@ -271,7 +294,13 @@ export default function SideProjects() {
           </div>
 
           <div className="mb-14 mt-8 flex flex-col gap-3">
-            <div className="flex gap-4">
+            <div
+              className="flex gap-4"
+              style={{
+                gap: isMobile ? "8px" : undefined,
+                width: isMobile ? "100%" : undefined,
+              }}
+            >
               {STATS.map((stat) => (
                 <StatCard key={stat.label} {...stat} active={visible} />
               ))}

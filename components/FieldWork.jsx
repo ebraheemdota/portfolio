@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const PEEC = {
   initial: "P",
@@ -242,7 +243,7 @@ function Monogram({ initial }) {
 }
 
 function CollapsedCard({ project, onExpand }) {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(true);
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
@@ -284,8 +285,8 @@ function CollapsedCard({ project, onExpand }) {
         {project.teaser}
       </p>
 
-      <div className="mt-7 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="mt-7">
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {project.deliverables.map((name) => (
             <span
               key={name}
@@ -304,11 +305,21 @@ function CollapsedCard({ project, onExpand }) {
         <button
           type="button"
           onClick={handleClick}
-          className="rounded-lg px-[22px] py-2.5 text-[13px] font-semibold transition-colors duration-200 hover:bg-[#f97316] hover:text-[#0a0a0a]"
+          className="hover:bg-[#f97316] hover:text-[#0a0a0a]"
           style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
             border: "1.5px solid #f97316",
             color: "#f97316",
-            backgroundColor: "transparent",
+            background: "transparent",
+            padding: "10px 22px",
+            borderRadius: "8px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+            marginTop: "16px",
           }}
         >
           {project.ctaLabel}
@@ -320,18 +331,26 @@ function CollapsedCard({ project, onExpand }) {
 
 function CounterCard({ target, duration, label, active }) {
   const value = useCountUp(target, duration, active);
+  const isMobile = useIsMobile();
 
   return (
     <div
       className="flex-1 rounded-xl border px-7 py-6 text-center"
-      style={{ backgroundColor: "#141414", borderColor: "#222222" }}
+      style={{
+        backgroundColor: "#141414",
+        borderColor: "#222222",
+        padding: isMobile ? "10px 8px" : undefined,
+      }}
     >
-      <div className="text-[48px] font-bold leading-none" style={{ color: "#f97316" }}>
+      <div
+        className="text-[48px] font-bold leading-none"
+        style={{ color: "#f97316", fontSize: isMobile ? "24px" : undefined }}
+      >
         {value}
       </div>
       <div
         className="mt-2 text-[11px] font-semibold tracking-[0.12em]"
-        style={{ color: "#888880" }}
+        style={{ color: "#888880", fontSize: isMobile ? "8px" : undefined }}
       >
         {label}
       </div>
@@ -344,6 +363,7 @@ function ExpandedPeecBlock({ onClose }) {
   const progress = useScrollProgress(containerRef);
   const activeStep = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
   const isLastStep = activeStep === PEEC_STEPS.length - 1;
+  const isMobile = useIsMobile();
 
   const [underlineOn, setUnderlineOn] = useState(false);
   const [contentVisible, setContentVisible] = useState(true);
@@ -386,6 +406,251 @@ function ExpandedPeecBlock({ onClose }) {
 
   const fillWidth = activeStep === 0 ? "0%" : activeStep === 1 ? "50%" : "100%";
 
+  const renderStepContent = (index, countersActive) => {
+    if (index === 0) {
+      return (
+        <div>
+          <p
+            className="max-w-[900px] font-bold leading-[1.2]"
+            style={{ color: "#f5f5f0", fontSize: isMobile ? "20px" : "52px" }}
+          >
+            Most brands track whether AI mentions them. Almost none
+            track whether those mentions actually drive recommendations
+            — and that gap was what this audit set out to map.
+          </p>
+          <div
+            className="mt-10 h-px w-full"
+            style={{ backgroundColor: "#1e1e1e" }}
+          />
+          <div
+            className="mt-6 flex gap-3"
+            style={{
+              flexWrap: isMobile ? "wrap" : undefined,
+              gap: isMobile ? "8px" : undefined,
+            }}
+          >
+            {STEP0_STATS.map((stat) => (
+              <span
+                key={stat}
+                className="rounded-[20px] px-5 py-2 text-[13px]"
+                style={{
+                  backgroundColor: "#141414",
+                  border: "1px solid #222222",
+                  color: "#888880",
+                }}
+              >
+                {stat}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (index === 1) {
+      return (
+        <>
+          <div
+            className="mb-10 flex gap-6"
+            style={{
+              display: isMobile ? "grid" : "flex",
+              gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : undefined,
+              gap: isMobile ? "8px" : undefined,
+            }}
+          >
+            {PEEC_COUNTERS.map((counter) => (
+              <CounterCard
+                key={counter.label}
+                {...counter}
+                active={countersActive}
+              />
+            ))}
+          </div>
+          <div
+            className="grid grid-cols-3 gap-3"
+            style={{ gridTemplateColumns: isMobile ? "1fr" : undefined }}
+          >
+            {PEEC_FINDINGS.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border px-[22px] py-5 transition-colors duration-200 hover:border-[#f97316]"
+                style={{
+                  backgroundColor: "#141414",
+                  borderColor: "#1e1e1e",
+                  padding: isMobile ? "12px 14px" : undefined,
+                }}
+              >
+                <div className="flex items-center">
+                  <i
+                    className={`ti ${item.icon} text-[18px]`}
+                    style={{ color: "#f97316" }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="ml-2 text-[13px] font-semibold"
+                    style={{ color: "#f97316" }}
+                  >
+                    {item.title}
+                  </span>
+                </div>
+                <p
+                  className="mt-[10px] text-[13px] leading-[1.6]"
+                  style={{ color: "#888880" }}
+                >
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div>
+        <p
+          className="mb-10 max-w-[800px] text-[28px] font-medium leading-[1.65]"
+          style={{ color: "#f5f5f0" }}
+        >
+          A full audit across 48 queries on ChatGPT and Perplexity,
+          covering HR SaaS and Spend Management categories.
+        </p>
+        <div
+          style={{
+            width: isMobile ? "100%" : "65%",
+            height: isMobile ? "auto" : undefined,
+            margin: "0 auto",
+            marginTop: "28px",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid #222",
+            position: "relative",
+            boxShadow: "0 0 24px rgba(249,115,22,0.08)",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- simple fading carousel image, next/image not needed here */}
+          <img
+            src={sheets[sheetIndex].src}
+            alt={sheets[sheetIndex].label}
+            style={{
+              width: "100%",
+              display: "block",
+              opacity: sheetVisible ? 1 : 0,
+              transition: "opacity 0.3s ease",
+              aspectRatio: "16/9",
+              objectFit: "cover",
+              objectPosition: "top left",
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              top: "12px",
+              right: "12px",
+              background: "rgba(10,10,10,0.8)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid #222",
+              borderRadius: "20px",
+              padding: "5px 12px",
+              fontSize: "11px",
+              color: "#888880",
+              opacity: sheetVisible ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {sheets[sheetIndex].label}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "8px",
+            marginTop: "12px",
+          }}
+        >
+          {sheets.map((sheet, i) => (
+            <div
+              key={sheet.src}
+              onClick={() => {
+                setSheetVisible(false);
+                setTimeout(() => {
+                  setSheetIndex(i);
+                  setSheetVisible(true);
+                }, 300);
+              }}
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: sheetIndex === i ? "#f97316" : "#333",
+                transform: sheetIndex === i ? "scale(1.3)" : "scale(1)",
+                transition: "all 0.3s ease",
+                cursor: "pointer",
+              }}
+            />
+          ))}
+        </div>
+        <div
+          className="relative mt-5 flex justify-center gap-3"
+          style={{ zIndex: 10 }}
+        >
+          {TOOL_TAGS.map((tool) =>
+            tool.name === "Google Sheets" ? (
+              <div
+                key={tool.name}
+                className="flex items-center gap-2 rounded-[10px] border px-5 py-[10px]"
+                style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
+              >
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
+                  {tool.logo}
+                </span>
+                <div>
+                  <div
+                    className="text-[13px] font-medium"
+                    style={{ color: "#888880" }}
+                  >
+                    {tool.name}
+                  </div>
+                  <div className="text-[10px]" style={{ color: "#444444" }}>
+                    Available on request
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a
+                key={tool.name}
+                href={PEEC_TOOL_LINKS[tool.name]}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open in new tab"
+                className="flex cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
+                style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
+              >
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
+                  {tool.logo}
+                </span>
+                <div>
+                  <div
+                    className="text-[13px] font-medium"
+                    style={{ color: "#888880" }}
+                  >
+                    {tool.name}
+                  </div>
+                  <div className="text-[10px]" style={{ color: "#444444" }}>
+                    Open document
+                  </div>
+                </div>
+              </a>
+            )
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       ref={containerRef}
@@ -408,11 +673,12 @@ function ExpandedPeecBlock({ onClose }) {
         }}
       >
         <div
-          className="absolute left-0 top-0 flex w-full items-center justify-between px-12 py-7"
+          className="absolute left-0 top-0 flex w-full items-center justify-between"
           style={{
             background: "rgba(10,10,10,0.5)",
             backdropFilter: "blur(8px)",
             borderBottom: "1px solid #1a1a1a",
+            padding: isMobile ? "16px 20px" : "28px 48px",
           }}
         >
           <div className="flex items-center gap-3">
@@ -420,8 +686,8 @@ function ExpandedPeecBlock({ onClose }) {
             <div>
               <div className="flex items-center gap-2">
                 <span
-                  className="text-[24px] font-bold"
-                  style={{ color: "#f5f5f0" }}
+                  className="font-bold"
+                  style={{ color: "#f5f5f0", fontSize: isMobile ? "14px" : "24px" }}
                 >
                   {PEEC.title}
                 </span>
@@ -448,15 +714,23 @@ function ExpandedPeecBlock({ onClose }) {
             onClick={handleClose}
             aria-label="Collapse"
             className="text-xl leading-none"
-            style={{ color: "#888880" }}
+            style={
+              isMobile
+                ? { color: "#888880", position: "absolute", top: "16px", right: "16px" }
+                : { color: "#888880" }
+            }
           >
             ×
           </button>
         </div>
 
         <div
-          className="absolute left-0 right-0 top-[100px]"
-          style={{ background: "transparent", padding: "0 120px" }}
+          className="absolute left-0 right-0"
+          style={{
+            background: "transparent",
+            padding: isMobile ? "0 20px" : "0 120px",
+            top: isMobile ? "80px" : "100px",
+          }}
         >
           <div className="relative flex items-center justify-between">
             <div
@@ -512,13 +786,15 @@ function ExpandedPeecBlock({ onClose }) {
         </div>
 
         <div
-          className="absolute left-0 right-0 top-[200px] text-left"
+          className="absolute left-0 right-0 text-left"
           style={{
             background: "transparent",
-            padding: "0 120px",
+            paddingLeft: isMobile ? "20px" : "120px",
+            paddingRight: isMobile ? "20px" : "120px",
             paddingBottom: "100px",
             overflow: "visible",
             bottom: 0,
+            top: isMobile ? "160px" : "200px",
           }}
         >
           <p
@@ -536,223 +812,7 @@ function ExpandedPeecBlock({ onClose }) {
               paddingBottom: "40px",
             }}
           >
-            {activeStep === 0 && (
-              <div>
-                <p
-                  className="max-w-[900px] text-[52px] font-bold leading-[1.2]"
-                  style={{ color: "#f5f5f0" }}
-                >
-                  Most brands track whether AI mentions them. Almost none
-                  track whether those mentions actually drive recommendations
-                  — and that gap was what this audit set out to map.
-                </p>
-                <div
-                  className="mt-10 h-px w-full"
-                  style={{ backgroundColor: "#1e1e1e" }}
-                />
-                <div className="mt-6 flex gap-3">
-                  {STEP0_STATS.map((stat) => (
-                    <span
-                      key={stat}
-                      className="rounded-[20px] px-5 py-2 text-[13px]"
-                      style={{
-                        backgroundColor: "#141414",
-                        border: "1px solid #222222",
-                        color: "#888880",
-                      }}
-                    >
-                      {stat}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeStep === 1 && (
-              <>
-                <div className="mb-10 flex gap-6">
-                  {PEEC_COUNTERS.map((counter) => (
-                    <CounterCard
-                      key={counter.label}
-                      {...counter}
-                      active={activeStep === 1}
-                    />
-                  ))}
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {PEEC_FINDINGS.map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-xl border px-[22px] py-5 transition-colors duration-200 hover:border-[#f97316]"
-                      style={{ backgroundColor: "#141414", borderColor: "#1e1e1e" }}
-                    >
-                      <div className="flex items-center">
-                        <i
-                          className={`ti ${item.icon} text-[18px]`}
-                          style={{ color: "#f97316" }}
-                          aria-hidden="true"
-                        />
-                        <span
-                          className="ml-2 text-[13px] font-semibold"
-                          style={{ color: "#f97316" }}
-                        >
-                          {item.title}
-                        </span>
-                      </div>
-                      <p
-                        className="mt-[10px] text-[13px] leading-[1.6]"
-                        style={{ color: "#888880" }}
-                      >
-                        {item.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {activeStep === 2 && (
-              <div>
-                <p
-                  className="mb-10 max-w-[800px] text-[28px] font-medium leading-[1.65]"
-                  style={{ color: "#f5f5f0" }}
-                >
-                  A full audit across 48 queries on ChatGPT and Perplexity,
-                  covering HR SaaS and Spend Management categories.
-                </p>
-                <div
-                  style={{
-                    width: "65%",
-                    margin: "0 auto",
-                    marginTop: "28px",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    border: "1px solid #222",
-                    position: "relative",
-                    boxShadow: "0 0 24px rgba(249,115,22,0.08)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- simple fading carousel image, next/image not needed here */}
-                  <img
-                    src={sheets[sheetIndex].src}
-                    alt={sheets[sheetIndex].label}
-                    style={{
-                      width: "100%",
-                      display: "block",
-                      opacity: sheetVisible ? 1 : 0,
-                      transition: "opacity 0.3s ease",
-                      aspectRatio: "16/9",
-                      objectFit: "cover",
-                      objectPosition: "top left",
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "12px",
-                      right: "12px",
-                      background: "rgba(10,10,10,0.8)",
-                      backdropFilter: "blur(8px)",
-                      border: "1px solid #222",
-                      borderRadius: "20px",
-                      padding: "5px 12px",
-                      fontSize: "11px",
-                      color: "#888880",
-                      opacity: sheetVisible ? 1 : 0,
-                      transition: "opacity 0.3s ease",
-                    }}
-                  >
-                    {sheets[sheetIndex].label}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "8px",
-                    marginTop: "12px",
-                  }}
-                >
-                  {sheets.map((sheet, i) => (
-                    <div
-                      key={sheet.src}
-                      onClick={() => {
-                        setSheetVisible(false);
-                        setTimeout(() => {
-                          setSheetIndex(i);
-                          setSheetVisible(true);
-                        }, 300);
-                      }}
-                      style={{
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        background: sheetIndex === i ? "#f97316" : "#333",
-                        transform: sheetIndex === i ? "scale(1.3)" : "scale(1)",
-                        transition: "all 0.3s ease",
-                        cursor: "pointer",
-                      }}
-                    />
-                  ))}
-                </div>
-                <div
-                  className="relative mt-5 flex justify-center gap-3"
-                  style={{ zIndex: 10 }}
-                >
-                  {TOOL_TAGS.map((tool) =>
-                    tool.name === "Google Sheets" ? (
-                      <div
-                        key={tool.name}
-                        className="flex items-center gap-2 rounded-[10px] border px-5 py-[10px]"
-                        style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
-                      >
-                        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                          {tool.logo}
-                        </span>
-                        <div>
-                          <div
-                            className="text-[13px] font-medium"
-                            style={{ color: "#888880" }}
-                          >
-                            {tool.name}
-                          </div>
-                          <div className="text-[10px]" style={{ color: "#444444" }}>
-                            Available on request
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <a
-                        key={tool.name}
-                        href={PEEC_TOOL_LINKS[tool.name]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Open in new tab"
-                        className="flex cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
-                        style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
-                      >
-                        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                          {tool.logo}
-                        </span>
-                        <div>
-                          <div
-                            className="text-[13px] font-medium"
-                            style={{ color: "#888880" }}
-                          >
-                            {tool.name}
-                          </div>
-                          <div className="text-[10px]" style={{ color: "#444444" }}>
-                            Open document
-                          </div>
-                        </div>
-                      </a>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
+            {renderStepContent(activeStep, activeStep === 1)}
           </div>
         </div>
 
@@ -777,6 +837,7 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
   const progress = useScrollProgress(containerRef);
   const activeStep = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
   const isLastStep = activeStep === BEYOND_PRESENCE_STEPS.length - 1;
+  const isMobile = useIsMobile();
 
   const [underlineOn, setUnderlineOn] = useState(false);
   const [contentVisible, setContentVisible] = useState(true);
@@ -801,6 +862,310 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
   const fillWidth = activeStep === 0 ? "0%" : activeStep === 1 ? "50%" : "100%";
   const loomTool = TOOL_TAGS.find((tool) => tool.name === "Loom");
 
+  const renderStepContent = (index, countersActive) => {
+    if (index === 0) {
+      return (
+        <div>
+          <p
+            className="max-w-[900px] font-bold leading-[1.2]"
+            style={{ color: "#f5f5f0", fontSize: isMobile ? "20px" : "52px" }}
+          >
+            The biggest barrier to AI avatar adoption isn&apos;t the
+            technology. It&apos;s that most buyers can&apos;t picture
+            where it fits.
+          </p>
+          <div
+            className="mt-10 h-px w-full"
+            style={{ backgroundColor: "#1e1e1e" }}
+          />
+          <div
+            className="mt-6 flex gap-3"
+            style={{
+              flexDirection: isMobile ? "column" : undefined,
+              gap: isMobile ? "8px" : undefined,
+            }}
+          >
+            {STEP0_COMPARISON_PILLS.map((pill) => (
+              <span
+                key={pill.text}
+                className="rounded-[20px] px-6 py-[10px] text-[13px]"
+                style={{
+                  backgroundColor: "#141414",
+                  border: pill.accent
+                    ? "1px solid #f97316"
+                    : "1px solid #222222",
+                  color: pill.accent ? "#f97316" : "#888880",
+                }}
+              >
+                {pill.text}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (index === 1) {
+      return (
+        <>
+          <div
+            className="mb-10 flex gap-6"
+            style={{
+              display: isMobile ? "grid" : "flex",
+              gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : undefined,
+              gap: isMobile ? "8px" : undefined,
+            }}
+          >
+            {BEYOND_PRESENCE_COUNTERS.map((counter) => (
+              <CounterCard
+                key={counter.label}
+                {...counter}
+                active={countersActive}
+              />
+            ))}
+          </div>
+
+          <div
+            className="w-full rounded-2xl border px-8 py-7"
+            style={{
+              backgroundColor: "#141414",
+              borderColor: "#222222",
+              padding: isMobile ? "16px" : undefined,
+            }}
+          >
+            <div
+              className="grid items-start gap-10"
+              style={{ gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr" }}
+            >
+              <div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[18px] font-bold"
+                    style={{
+                      backgroundColor: "#1a1a1a",
+                      border: "2px solid #f97316",
+                      color: "#f97316",
+                    }}
+                  >
+                    M
+                  </span>
+                  <div>
+                    <div
+                      className="text-xl font-bold"
+                      style={{ color: "#f5f5f0" }}
+                    >
+                      Maya
+                    </div>
+                    <div
+                      className="mt-[2px] text-[13px]"
+                      style={{ color: "#888880" }}
+                    >
+                      International Student Guide
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className="my-5 h-px w-full"
+                  style={{ backgroundColor: "#1e1e1e" }}
+                />
+
+                <div className="flex flex-wrap gap-[10px]">
+                  {MAYA_CAPABILITY_TAGS.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-[20px] px-4 py-[6px] text-xs"
+                      style={{
+                        backgroundColor: "#1a1a1a",
+                        border: "1px solid #2a2a2a",
+                        color: "#888880",
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <p
+                  className="mt-4 text-sm leading-[1.7]"
+                  style={{ color: "#888880" }}
+                >
+                  Maya replaces the PDF nobody reads. From housing and
+                  health insurance to city registration and student
+                  communities — everything an international student
+                  needs to feel at home, delivered through a single
+                  conversational AI avatar.
+                </p>
+
+                <div className="mt-5 flex items-center gap-3">
+                {loomTool && (
+                  <a
+                    href={BEYOND_PRESENCE_LOOM_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open in new tab"
+                    className="flex w-fit cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
+                    style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
+                  >
+                    <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
+                      {loomTool.logo}
+                    </span>
+                    <div>
+                      <div
+                        className="text-[13px] font-medium"
+                        style={{ color: "#888880" }}
+                      >
+                        {loomTool.name}
+                      </div>
+                      <div className="text-[10px]" style={{ color: "#444444" }}>
+                        Open demo
+                      </div>
+                    </div>
+                  </a>
+                )}
+                <a
+                  href="https://bey.chat/583b843a-3cc4-4366-8c3d-ef454ee68209"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Talk to Maya"
+                  className="flex w-fit cursor-pointer items-center gap-2 rounded-[10px] border border-[#f97316] bg-[#f97316] px-5 py-[10px] transition-colors duration-200 hover:bg-[#ea6a0a]"
+                >
+                  <i
+                    className="ti ti-message-circle text-[16px]"
+                    style={{ color: "#0a0a0a" }}
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <div
+                      className="text-[13px] font-semibold"
+                      style={{ color: "#0a0a0a" }}
+                    >
+                      Talk to Maya →
+                    </div>
+                    <div
+                      className="text-[10px]"
+                      style={{ color: "rgba(0,0,0,0.6)" }}
+                    >
+                      Have a live conversation
+                    </div>
+                  </div>
+                </a>
+              </div>
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    width: "100%",
+                    height: "320px",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    border: "1px solid #222",
+                    marginTop: "24px",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- next/image strips GIF animation; plain img preserves it */}
+                  <img
+                    src="/maya.gif"
+                    alt="Maya avatar demo"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "top",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div>
+        <p
+          className="mb-10 max-w-[800px] font-medium leading-[1.65]"
+          style={{ color: "#f5f5f0", fontSize: isMobile ? "18px" : "28px" }}
+        >
+          Universities are the obvious buyer — but slow procurement
+          cycles and seasonal intakes break the recurring revenue
+          model. The same use case maps directly to companies hiring
+          international talent.
+        </p>
+
+        <div className="flex gap-4" style={{ flexDirection: isMobile ? "column" : "row" }}>
+          <div
+            className="flex-1 rounded-xl border px-7 py-6"
+            style={{ backgroundColor: "#141414", borderColor: "#222222" }}
+          >
+            <p
+              className="mb-4 text-[13px] font-semibold tracking-[0.05em]"
+              style={{ color: "#888880" }}
+            >
+              {ICP_LEFT_CARD.header}
+            </p>
+            {ICP_LEFT_CARD.rows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between py-2 text-[13px]"
+                style={{
+                  borderBottom: "1px solid #1a1a1a",
+                  color: "#888880",
+                }}
+              >
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="flex-1 rounded-xl border px-7 py-6"
+            style={{
+              backgroundColor: "#141414",
+              border: "1.5px solid #f97316",
+              boxShadow: "0 0 20px rgba(249,115,22,0.08)",
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <p
+                className="text-[13px] font-semibold tracking-[0.05em]"
+                style={{ color: "#f97316" }}
+              >
+                {ICP_RIGHT_CARD.header}
+              </p>
+              <span
+                className="rounded-[20px] px-[10px] py-[3px] text-[10px]"
+                style={{
+                  backgroundColor: "rgba(249,115,22,0.1)",
+                  border: "1px solid #f97316",
+                  color: "#f97316",
+                }}
+              >
+                {ICP_RIGHT_CARD.badge}
+              </span>
+            </div>
+            {ICP_RIGHT_CARD.rows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between py-2 text-[13px]"
+                style={{
+                  borderBottom: "1px solid #1e1e1e",
+                  color: "#f97316",
+                }}
+              >
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       ref={containerRef}
@@ -821,11 +1186,12 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
         }}
       >
         <div
-          className="absolute left-0 top-0 flex w-full items-center justify-between px-12 py-7"
+          className="absolute left-0 top-0 flex w-full items-center justify-between"
           style={{
             background: "rgba(10,10,10,0.5)",
             backdropFilter: "blur(8px)",
             borderBottom: "1px solid #1a1a1a",
+            padding: isMobile ? "16px 20px" : "28px 48px",
           }}
         >
           <div className="flex items-center gap-3">
@@ -833,8 +1199,8 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
             <div>
               <div className="flex items-center gap-2">
                 <span
-                  className="text-[24px] font-bold"
-                  style={{ color: "#f5f5f0" }}
+                  className="font-bold"
+                  style={{ color: "#f5f5f0", fontSize: isMobile ? "14px" : "24px" }}
                 >
                   {BEYOND_PRESENCE.title}
                 </span>
@@ -861,15 +1227,23 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
             onClick={handleClose}
             aria-label="Collapse"
             className="text-xl leading-none"
-            style={{ color: "#888880" }}
+            style={
+              isMobile
+                ? { color: "#888880", position: "absolute", top: "16px", right: "16px" }
+                : { color: "#888880" }
+            }
           >
             ×
           </button>
         </div>
 
         <div
-          className="absolute left-0 right-0 top-[100px]"
-          style={{ background: "transparent", padding: "0 120px" }}
+          className="absolute left-0 right-0"
+          style={{
+            background: "transparent",
+            padding: isMobile ? "0 20px" : "0 120px",
+            top: isMobile ? "80px" : "100px",
+          }}
         >
           <div className="relative flex items-center justify-between">
             <div
@@ -925,12 +1299,13 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
         </div>
 
         <div
-          className="absolute left-0 right-0 top-[200px] text-left"
+          className="absolute left-0 right-0 text-left"
           style={{
             background: "transparent",
-            padding: "0 120px",
+            padding: isMobile ? "0 20px" : "0 120px",
             maxHeight: "calc(100vh - 220px)",
             overflowY: "auto",
+            top: isMobile ? "160px" : "200px",
           }}
         >
           <p
@@ -947,286 +1322,7 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
               transition: "opacity 0.45s ease, transform 0.45s ease",
             }}
           >
-            {activeStep === 0 && (
-              <div>
-                <p
-                  className="max-w-[900px] text-[52px] font-bold leading-[1.2]"
-                  style={{ color: "#f5f5f0" }}
-                >
-                  The biggest barrier to AI avatar adoption isn&apos;t the
-                  technology. It&apos;s that most buyers can&apos;t picture
-                  where it fits.
-                </p>
-                <div
-                  className="mt-10 h-px w-full"
-                  style={{ backgroundColor: "#1e1e1e" }}
-                />
-                <div className="mt-6 flex gap-3">
-                  {STEP0_COMPARISON_PILLS.map((pill) => (
-                    <span
-                      key={pill.text}
-                      className="rounded-[20px] px-6 py-[10px] text-[13px]"
-                      style={{
-                        backgroundColor: "#141414",
-                        border: pill.accent
-                          ? "1px solid #f97316"
-                          : "1px solid #222222",
-                        color: pill.accent ? "#f97316" : "#888880",
-                      }}
-                    >
-                      {pill.text}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeStep === 1 && (
-              <>
-                <div className="mb-10 flex gap-6">
-                  {BEYOND_PRESENCE_COUNTERS.map((counter) => (
-                    <CounterCard
-                      key={counter.label}
-                      {...counter}
-                      active={activeStep === 1}
-                    />
-                  ))}
-                </div>
-
-                <div
-                  className="w-full rounded-2xl border px-8 py-7"
-                  style={{ backgroundColor: "#141414", borderColor: "#222222" }}
-                >
-                  <div
-                    className="grid items-start gap-10"
-                    style={{ gridTemplateColumns: "1fr 1fr" }}
-                  >
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[18px] font-bold"
-                          style={{
-                            backgroundColor: "#1a1a1a",
-                            border: "2px solid #f97316",
-                            color: "#f97316",
-                          }}
-                        >
-                          M
-                        </span>
-                        <div>
-                          <div
-                            className="text-xl font-bold"
-                            style={{ color: "#f5f5f0" }}
-                          >
-                            Maya
-                          </div>
-                          <div
-                            className="mt-[2px] text-[13px]"
-                            style={{ color: "#888880" }}
-                          >
-                            International Student Guide
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        className="my-5 h-px w-full"
-                        style={{ backgroundColor: "#1e1e1e" }}
-                      />
-
-                      <div className="flex flex-wrap gap-[10px]">
-                        {MAYA_CAPABILITY_TAGS.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-[20px] px-4 py-[6px] text-xs"
-                            style={{
-                              backgroundColor: "#1a1a1a",
-                              border: "1px solid #2a2a2a",
-                              color: "#888880",
-                            }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      <p
-                        className="mt-4 text-sm leading-[1.7]"
-                        style={{ color: "#888880" }}
-                      >
-                        Maya replaces the PDF nobody reads. From housing and
-                        health insurance to city registration and student
-                        communities — everything an international student
-                        needs to feel at home, delivered through a single
-                        conversational AI avatar.
-                      </p>
-
-                      <div className="mt-5 flex items-center gap-3">
-                      {loomTool && (
-                        <a
-                          href={BEYOND_PRESENCE_LOOM_LINK}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Open in new tab"
-                          className="flex w-fit cursor-pointer items-center gap-2 rounded-[10px] border px-5 py-[10px] transition-colors duration-200 hover:border-[#f97316]"
-                          style={{ backgroundColor: "#141414", borderColor: "#2a2a2a" }}
-                        >
-                          <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center">
-                            {loomTool.logo}
-                          </span>
-                          <div>
-                            <div
-                              className="text-[13px] font-medium"
-                              style={{ color: "#888880" }}
-                            >
-                              {loomTool.name}
-                            </div>
-                            <div className="text-[10px]" style={{ color: "#444444" }}>
-                              Open demo
-                            </div>
-                          </div>
-                        </a>
-                      )}
-                      <a
-                        href="https://bey.chat/583b843a-3cc4-4366-8c3d-ef454ee68209"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Talk to Maya"
-                        className="flex w-fit cursor-pointer items-center gap-2 rounded-[10px] border border-[#f97316] bg-[#f97316] px-5 py-[10px] transition-colors duration-200 hover:bg-[#ea6a0a]"
-                      >
-                        <i
-                          className="ti ti-message-circle text-[16px]"
-                          style={{ color: "#0a0a0a" }}
-                          aria-hidden="true"
-                        />
-                        <div>
-                          <div
-                            className="text-[13px] font-semibold"
-                            style={{ color: "#0a0a0a" }}
-                          >
-                            Talk to Maya →
-                          </div>
-                          <div
-                            className="text-[10px]"
-                            style={{ color: "rgba(0,0,0,0.6)" }}
-                          >
-                            Have a live conversation
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                    </div>
-
-                    <div>
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "320px",
-                          borderRadius: "16px",
-                          overflow: "hidden",
-                          border: "1px solid #222",
-                          marginTop: "24px",
-                        }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element -- next/image strips GIF animation; plain img preserves it */}
-                        <img
-                          src="/maya.gif"
-                          alt="Maya avatar demo"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            objectPosition: "top",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {activeStep === 2 && (
-              <div>
-                <p
-                  className="mb-10 max-w-[800px] text-[28px] font-medium leading-[1.65]"
-                  style={{ color: "#f5f5f0" }}
-                >
-                  Universities are the obvious buyer — but slow procurement
-                  cycles and seasonal intakes break the recurring revenue
-                  model. The same use case maps directly to companies hiring
-                  international talent.
-                </p>
-
-                <div className="flex gap-4">
-                  <div
-                    className="flex-1 rounded-xl border px-7 py-6"
-                    style={{ backgroundColor: "#141414", borderColor: "#222222" }}
-                  >
-                    <p
-                      className="mb-4 text-[13px] font-semibold tracking-[0.05em]"
-                      style={{ color: "#888880" }}
-                    >
-                      {ICP_LEFT_CARD.header}
-                    </p>
-                    {ICP_LEFT_CARD.rows.map((row) => (
-                      <div
-                        key={row.label}
-                        className="flex items-center justify-between py-2 text-[13px]"
-                        style={{
-                          borderBottom: "1px solid #1a1a1a",
-                          color: "#888880",
-                        }}
-                      >
-                        <span>{row.label}</span>
-                        <span>{row.value}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div
-                    className="flex-1 rounded-xl border px-7 py-6"
-                    style={{
-                      backgroundColor: "#141414",
-                      border: "1.5px solid #f97316",
-                      boxShadow: "0 0 20px rgba(249,115,22,0.08)",
-                    }}
-                  >
-                    <div className="mb-4 flex items-center justify-between">
-                      <p
-                        className="text-[13px] font-semibold tracking-[0.05em]"
-                        style={{ color: "#f97316" }}
-                      >
-                        {ICP_RIGHT_CARD.header}
-                      </p>
-                      <span
-                        className="rounded-[20px] px-[10px] py-[3px] text-[10px]"
-                        style={{
-                          backgroundColor: "rgba(249,115,22,0.1)",
-                          border: "1px solid #f97316",
-                          color: "#f97316",
-                        }}
-                      >
-                        {ICP_RIGHT_CARD.badge}
-                      </span>
-                    </div>
-                    {ICP_RIGHT_CARD.rows.map((row) => (
-                      <div
-                        key={row.label}
-                        className="flex items-center justify-between py-2 text-[13px]"
-                        style={{
-                          borderBottom: "1px solid #1e1e1e",
-                          color: "#f97316",
-                        }}
-                      >
-                        <span>{row.label}</span>
-                        <span>{row.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+            {renderStepContent(activeStep, activeStep === 1)}
           </div>
         </div>
 
@@ -1246,10 +1342,15 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
 export default function FieldWork() {
   const [peecExpanded, setPeecExpanded] = useState(false);
   const [beyondPresenceExpanded, setBeyondPresenceExpanded] = useState(false);
+  const isMobile = useIsMobile();
+  const sectionPadding = { paddingLeft: isMobile ? "16px" : "80px", paddingRight: isMobile ? "16px" : "80px" };
 
   return (
     <section id="work" className="w-full" style={{ background: "transparent" }}>
-      <div className="mx-auto max-w-[900px] px-20 pb-[60px] pt-[120px] text-center">
+      <div
+        className="mx-auto max-w-[900px] pb-[60px] pt-[120px] text-center"
+        style={sectionPadding}
+      >
         <p
           className="text-xs font-semibold tracking-[0.2em]"
           style={{ color: "var(--accent)" }}
@@ -1268,7 +1369,7 @@ export default function FieldWork() {
         {peecExpanded ? (
           <ExpandedPeecBlock onClose={() => setPeecExpanded(false)} />
         ) : (
-          <div className="px-20">
+          <div style={sectionPadding}>
             <CollapsedCard
               project={PEEC}
               onExpand={() => setPeecExpanded(true)}
@@ -1281,7 +1382,7 @@ export default function FieldWork() {
             onClose={() => setBeyondPresenceExpanded(false)}
           />
         ) : (
-          <div className="relative px-20" style={{ position: "relative", zIndex: 10 }}>
+          <div className="relative" style={{ position: "relative", zIndex: 10, ...sectionPadding }}>
             <CollapsedCard
               project={BEYOND_PRESENCE}
               onExpand={() => setBeyondPresenceExpanded(true)}

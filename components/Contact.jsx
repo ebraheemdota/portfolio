@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function Contact() {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const node = ref.current;
@@ -21,19 +23,29 @@ export default function Contact() {
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    const fallback = setTimeout(() => {
+      setVisible(true);
+    }, 800);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
 
   return (
     <section
       ref={ref}
       id="contact"
-      className="mx-auto w-full max-w-[1100px] px-20 py-[120px] text-center"
+      className="mx-auto w-full max-w-[1100px] py-[120px] text-center"
       style={{
         background: "transparent",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(30px)",
         transition: "opacity 0.6s ease, transform 0.6s ease",
+        paddingLeft: isMobile ? "16px" : "80px",
+        paddingRight: isMobile ? "16px" : "80px",
       }}
     >
       <p
@@ -52,7 +64,7 @@ export default function Contact() {
         Based in Munich.
       </p>
 
-      <div className="mb-20 flex items-center justify-center gap-4">
+      <div className="mb-20 flex flex-col items-center justify-center gap-3 md:flex-row">
         <a
           href="mailto:mohammadebrahim.779@gmail.com"
           className="flex items-center gap-2 rounded-[10px] bg-[#f97316] px-8 py-3.5 text-[15px] font-semibold hover:bg-[#ea6a0a]"

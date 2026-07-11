@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const HEADLINE =
   "I do GTM with an unfair advantage: I've been on the side that builds the product.";
@@ -37,6 +38,7 @@ function randomScramble(length) {
 
 export default function Hero() {
   const heroRef = useRef(null);
+  const isMobile = useIsMobile();
 
   const [mounted, setMounted] = useState(false);
   const [typedLength, setTypedLength] = useState(0);
@@ -56,6 +58,13 @@ export default function Hero() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- detects client mount for hydration safety; no external system to sync with
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      setTypedLength((length) => (length === 0 ? HEADLINE.length : length));
+    }, 2000);
+    return () => clearTimeout(fallback);
   }, []);
 
   useEffect(() => {
@@ -129,7 +138,11 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-20 py-[120px]"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-[120px]"
+      style={{
+        paddingLeft: isMobile ? "16px" : "80px",
+        paddingRight: isMobile ? "16px" : "80px",
+      }}
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -199,8 +212,12 @@ export default function Hero() {
 
       <div className="container relative z-[1] flex flex-col items-center text-center">
         <h1
-          className="text-2xl font-semibold leading-snug sm:text-3xl"
-          style={{ color: "var(--text)" }}
+          className="font-bold leading-snug"
+          style={{
+            color: "#f5f5f0",
+            minHeight: "80px",
+            fontSize: isMobile ? "28px" : "36px",
+          }}
         >
           {glitching ? scrambledText : HEADLINE.slice(0, mounted ? typedLength : 0)}
           <span

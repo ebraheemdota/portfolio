@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const EXPERIENCES = [
   {
@@ -32,7 +33,7 @@ const EXPERIENCES = [
 
 function ExperienceCard({ experience, delay }) {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const node = ref.current;
@@ -49,7 +50,15 @@ function ExperienceCard({ experience, delay }) {
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    const fallback = setTimeout(() => {
+      setVisible(true);
+    }, 800);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
 
   return (
@@ -99,9 +108,15 @@ function ExperienceCard({ experience, delay }) {
 }
 
 export default function Experience() {
+  const isMobile = useIsMobile();
+  const sectionPadding = { paddingLeft: isMobile ? "16px" : "80px", paddingRight: isMobile ? "16px" : "80px" };
+
   return (
     <section id="experience" className="w-full">
-      <div className="mx-auto max-w-[900px] px-20 pb-[60px] pt-[120px] text-center">
+      <div
+        className="mx-auto max-w-[900px] pb-[60px] pt-[120px] text-center"
+        style={sectionPadding}
+      >
         <p
           className="text-xs font-semibold tracking-[0.2em]"
           style={{ color: "var(--accent)" }}
@@ -116,8 +131,8 @@ export default function Experience() {
         </h2>
       </div>
 
-      <div className="mx-auto max-w-[1200px] px-20 pb-[120px]">
-        <div className="grid grid-cols-3 items-stretch gap-5">
+      <div className="mx-auto max-w-[1200px] pb-[120px]" style={sectionPadding}>
+        <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-3">
           {EXPERIENCES.map((experience, index) => (
             <ExperienceCard
               key={experience.company}
