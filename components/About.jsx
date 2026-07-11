@@ -164,7 +164,7 @@ export default function About() {
             ABOUT
           </p>
           <h2
-            className="mb-6 text-[28px] font-bold leading-[1.2]"
+            className="mb-6 text-[48px] font-bold leading-[1.2]"
             style={{ color: "#f5f5f0" }}
           >
             The person behind the work.
