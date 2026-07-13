@@ -44,6 +44,9 @@ export default function Hero() {
   const [typedLength, setTypedLength] = useState(0);
   const typingDone = mounted && typedLength >= HEADLINE.length;
 
+  const [subtextVisible, setSubtextVisible] = useState(false);
+  const [buttonsVisible, setButtonsVisible] = useState(false);
+
   const [terminalStarted, setTerminalStarted] = useState(false);
   const [terminalIndex, setTerminalIndex] = useState(0);
   const [terminalVisible, setTerminalVisible] = useState(true);
@@ -74,6 +77,18 @@ export default function Hero() {
     }, 40);
     return () => clearTimeout(timeout);
   }, [mounted, glitchDone, typedLength, typingDone]);
+
+  useEffect(() => {
+    if (!typingDone) return undefined;
+    const frame = requestAnimationFrame(() => setSubtextVisible(true));
+    return () => cancelAnimationFrame(frame);
+  }, [typingDone]);
+
+  useEffect(() => {
+    if (!subtextVisible) return undefined;
+    const timeout = setTimeout(() => setButtonsVisible(true), 600);
+    return () => clearTimeout(timeout);
+  }, [subtextVisible]);
 
   useEffect(() => {
     const startTimeout = setTimeout(() => {
@@ -226,51 +241,94 @@ export default function Hero() {
           />
         </h1>
 
-        {typingDone && (
-          <>
-            <p
-              className="mt-6 animate-[fadeIn_0.5s_ease-out]"
-              style={{ color: "var(--muted)" }}
+        <div
+          className="mt-6 w-full"
+          style={{ pointerEvents: subtextVisible ? "auto" : "none" }}
+        >
+          <p style={{ color: "var(--muted)" }}>
+            <span
+              style={{
+                display: "inline-block",
+                opacity: 0,
+                animation: subtextVisible
+                  ? "fadeIn 0.5s ease 0ms forwards"
+                  : "none",
+              }}
             >
-              GTM operator. Product background. Based in Munich.
-            </p>
+              GTM operator.
+            </span>{" "}
+            <span
+              style={{
+                display: "inline-block",
+                opacity: 0,
+                animation: subtextVisible
+                  ? "fadeIn 0.5s ease 200ms forwards"
+                  : "none",
+              }}
+            >
+              Product background.
+            </span>{" "}
+            <span
+              style={{
+                display: "inline-block",
+                opacity: 0,
+                animation: subtextVisible
+                  ? "fadeIn 0.5s ease 400ms forwards"
+                  : "none",
+              }}
+            >
+              Based in Munich.
+            </span>
+          </p>
 
-            <div className="mt-8 flex animate-[fadeIn_0.5s_ease-out] gap-4 [animation-delay:200ms]">
-              <a
-                href="#work"
-                className="rounded-full px-6 py-3 text-sm font-medium transition-opacity hover:opacity-90"
-                style={{ backgroundColor: "var(--accent)", color: "var(--bg)" }}
-              >
-                See My Work
-              </a>
-              <a
-                href="#contact"
-                className="rounded-full border px-6 py-3 text-sm font-medium transition-colors"
-                style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
-              >
-                Get In Touch
-              </a>
-            </div>
+          <div
+            className="mt-8 flex gap-4"
+            style={{
+              opacity: buttonsVisible ? 1 : 0,
+              transition: "opacity 0.5s ease",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "16px",
+              width: "100%",
+            }}
+          >
+            <a
+              href="#work"
+              className="rounded-full px-6 py-3 text-sm font-medium transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "var(--accent)", color: "var(--bg)" }}
+            >
+              See My Work
+            </a>
+            <a
+              href="#contact"
+              className="rounded-full border px-6 py-3 text-sm font-medium transition-colors"
+              style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+            >
+              Get In Touch
+            </a>
+          </div>
+        </div>
 
-            <div className="mt-10 flex items-center gap-2.5">
-              <span
-                className="shrink-0 font-mono text-[13px]"
-                style={{ color: "#f97316" }}
-              >
-                &gt;
-              </span>
-              <span
-                className="font-mono text-[13px]"
-                style={{
-                  color: "#888880",
-                  opacity: terminalVisible ? 1 : 0,
-                  transition: "opacity 0.3s ease",
-                }}
-              >
-                {TERMINAL_LINES[terminalIndex]}
-              </span>
-            </div>
-          </>
+        {typingDone && (
+          <div className="mt-10 flex items-center gap-2.5">
+            <span
+              className="shrink-0 font-mono text-[13px]"
+              style={{ color: "#f97316" }}
+            >
+              &gt;
+            </span>
+            <span
+              className="font-mono text-[13px]"
+              style={{
+                color: "#888880",
+                opacity: terminalVisible ? 1 : 0,
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              {TERMINAL_LINES[terminalIndex]}
+            </span>
+          </div>
         )}
       </div>
     </section>
