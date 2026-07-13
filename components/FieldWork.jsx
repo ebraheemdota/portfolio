@@ -1567,6 +1567,26 @@ function ExpandedTaxHubBlock({ onClose }) {
           </div>
 
           <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '28px',
+            marginTop: '8px'
+          }}>
+            <span style={{
+              background: '#141414',
+              border: '1px solid #f97316',
+              borderRadius: '20px',
+              padding: '6px 18px',
+              fontSize: '12px',
+              color: '#f97316',
+              fontWeight: '600',
+              letterSpacing: '0.05em'
+            }}>
+              RAG-based · Grounded in BMF & IHK documents
+            </span>
+          </div>
+
+          <div style={{
             width: isMobile ? '100%' : '65%',
             margin: '0 auto',
             marginTop: '28px',
