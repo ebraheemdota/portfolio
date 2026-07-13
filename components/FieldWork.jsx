@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 const PEEC = {
@@ -124,6 +125,72 @@ const ICP_RIGHT_CARD = {
     { label: "Revenue model", value: "Recurring" },
   ],
 };
+
+const TAXHUB_URL = "https://taxhub-omega.vercel.app";
+
+const TAXHUB = {
+  initial: "T",
+  category: "VENTURE BUILD",
+  title: "TaxHub — AI Tax Assistant",
+  teaser:
+    "Built a live AI assistant for German tax firms in one day — grounded in real law, escalates to humans, and turns deflected questions into booked consultations.",
+  deliverables: ["Live app"],
+  deliverableLinks: { "Live app": TAXHUB_URL },
+  ctaLabel: "See the Build →",
+};
+
+const TAXHUB_STEPS = [
+  { label: "THE PROBLEM", icon: "ti-alert-triangle" },
+  { label: "WHAT I BUILT", icon: "ti-hammer" },
+  { label: "THE INSIGHT", icon: "ti-bulb" },
+];
+
+const TAXHUB_COUNTERS = [
+  { target: 3, duration: 600, label: "INTAKE QUESTIONS" },
+  { target: 5, duration: 800, label: "LAW SOURCES CITED" },
+];
+
+const TAXHUB_STEP0_STATS = [
+  "72% of firms understaffed",
+  "E-invoicing mandatory by 2025",
+  "DATEV gap: client comms",
+];
+
+const TAXHUB_BUILD_CARDS = [
+  {
+    icon: "ti-list-check",
+    title: "Rule engine",
+    desc: "Permutation-combination logic across company size, revenue, and invoicing method generates a personalized compliance roadmap.",
+  },
+  {
+    icon: "ti-shield",
+    title: "Sensitivity scoring",
+    desc: "Keyword and liability model decides what gets answered vs escalated — no hallucination risk on high-stakes queries.",
+  },
+  {
+    icon: "ti-file-text",
+    title: "Handoff brief",
+    desc: "Every escalation generates an AI brief for the advisor — turning a cost into a conversion-ready consultation.",
+  },
+];
+
+const TAXHUB_INSIGHT_ROWS = [
+  {
+    label: "What firms think they're buying",
+    value: "Time savings",
+    valueColor: "#f5f5f0",
+  },
+  {
+    label: "What they actually get",
+    value: "Revenue growth",
+    valueColor: "#f97316",
+  },
+  {
+    label: "The real business model",
+    value: "Deflection → Conversion",
+    valueColor: "#f97316",
+  },
+];
 
 const TOOL_TAGS = [
   {
@@ -287,19 +354,41 @@ function CollapsedCard({ project, onExpand }) {
 
       <div className="mt-7">
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          {project.deliverables.map((name) => (
-            <span
-              key={name}
-              className="rounded-[20px] px-3 py-[5px] text-[11px]"
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                color: "#888880",
-              }}
-            >
-              {name}
-            </span>
-          ))}
+          {project.deliverables.map((name) => {
+            const href = project.deliverableLinks?.[name];
+            if (href) {
+              return (
+                <a
+                  key={name}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-[20px] px-3 py-[5px] text-[11px] no-underline transition-colors duration-200 hover:border-[#f97316]"
+                  style={{
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #2a2a2a",
+                    color: "#888880",
+                    cursor: "pointer",
+                  }}
+                >
+                  {name}
+                </a>
+              );
+            }
+            return (
+              <span
+                key={name}
+                className="rounded-[20px] px-3 py-[5px] text-[11px]"
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #2a2a2a",
+                  color: "#888880",
+                }}
+              >
+                {name}
+              </span>
+            );
+          })}
         </div>
 
         <button
@@ -358,12 +447,56 @@ function CounterCard({ target, duration, label, active }) {
   );
 }
 
+function TaxHubCounterCard({ target, duration, label, active }) {
+  const value = useCountUp(target, duration, active);
+  const isMobile = useIsMobile();
+
+  return (
+    <div
+      className="rounded-xl border text-center"
+      style={{
+        backgroundColor: "#141414",
+        borderColor: "#222222",
+        padding: isMobile ? "10px 16px" : "24px 40px",
+      }}
+    >
+      <div
+        className="font-bold leading-none"
+        style={{ color: "#f97316", fontSize: isMobile ? "28px" : "48px" }}
+      >
+        {value}
+      </div>
+      <div
+        className="font-semibold"
+        style={{
+          color: "#888880",
+          fontSize: "11px",
+          letterSpacing: "0.12em",
+          marginTop: "8px",
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
+
 function ExpandedPeecBlock({ onClose }) {
   const containerRef = useRef(null);
   const progress = useScrollProgress(containerRef);
-  const activeStep = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
-  const isLastStep = activeStep === PEEC_STEPS.length - 1;
   const isMobile = useIsMobile();
+  const activeStep = isMobile
+    ? progress < 0.15
+      ? 0
+      : progress < 0.65
+      ? 1
+      : 2
+    : progress < 0.33
+    ? 0
+    : progress < 0.66
+    ? 1
+    : 2;
+  const isLastStep = activeStep === PEEC_STEPS.length - 1;
 
   const [underlineOn, setUnderlineOn] = useState(false);
   const [contentVisible, setContentVisible] = useState(true);
@@ -656,7 +789,7 @@ function ExpandedPeecBlock({ onClose }) {
       ref={containerRef}
       className="relative"
       style={{
-        height: "300vh",
+        height: isMobile ? "500vh" : "300vh",
         position: "relative",
         zIndex: 100,
         margin: 0,
@@ -792,7 +925,9 @@ function ExpandedPeecBlock({ onClose }) {
             paddingLeft: isMobile ? "20px" : "120px",
             paddingRight: isMobile ? "20px" : "120px",
             paddingBottom: "100px",
-            overflow: "visible",
+            overflow: isMobile ? undefined : "visible",
+            overflowY: isMobile ? "auto" : undefined,
+            maxHeight: isMobile ? "calc(100vh - 200px)" : undefined,
             bottom: 0,
             top: isMobile ? "160px" : "200px",
           }}
@@ -1339,9 +1474,442 @@ function ExpandedBeyondPresenceBlock({ onClose }) {
   );
 }
 
+function ExpandedTaxHubBlock({ onClose }) {
+  const containerRef = useRef(null);
+  const progress = useScrollProgress(containerRef);
+  const activeStep = progress < 0.2 ? 0 : progress < 0.65 ? 1 : 2;
+  const isLastStep = activeStep === TAXHUB_STEPS.length - 1;
+  const isMobile = useIsMobile();
+
+  const [underlineOn, setUnderlineOn] = useState(false);
+  const [contentVisible, setContentVisible] = useState(true);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setUnderlineOn(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restarts the fade/translate transition on every step change
+    setContentVisible(false);
+    const frame = requestAnimationFrame(() => setContentVisible(true));
+    return () => cancelAnimationFrame(frame);
+  }, [activeStep]);
+
+  const handleClose = () => {
+    containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(onClose, 800);
+  };
+
+  const fillWidth = activeStep === 0 ? "0%" : activeStep === 1 ? "50%" : "100%";
+
+  const renderStepContent = (index, countersActive) => {
+    if (index === 0) {
+      return (
+        <div>
+          <p
+            className="max-w-[900px] font-bold leading-[1.2]"
+            style={{ color: "#f5f5f0", fontSize: isMobile ? "20px" : "52px" }}
+          >
+            Germany&apos;s mandatory e-invoicing transition is flooding tax
+            firms with repetitive client questions. 72% can&apos;t find
+            staff. DATEV owns the accounting core — but leaves the entire
+            client communication layer wide open.
+          </p>
+          <div
+            className="mt-10 h-px w-full"
+            style={{ backgroundColor: "#1e1e1e" }}
+          />
+          <div
+            className="mt-6 flex"
+            style={{
+              gap: isMobile ? "8px" : "12px",
+              flexWrap: isMobile ? "wrap" : undefined,
+            }}
+          >
+            {TAXHUB_STEP0_STATS.map((stat) => (
+              <span
+                key={stat}
+                className="rounded-[20px] px-5 py-2 text-[13px]"
+                style={{
+                  backgroundColor: "#141414",
+                  border: "1px solid #222222",
+                  color: "#888880",
+                }}
+              >
+                {stat}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (index === 1) {
+      return (
+        <>
+          <div
+            style={{
+              display: "flex",
+              gap: "24px",
+              justifyContent: "center",
+              maxWidth: "500px",
+              margin: "0 auto 40px",
+            }}
+          >
+            {TAXHUB_COUNTERS.map((counter) => (
+              <TaxHubCounterCard
+                key={counter.label}
+                {...counter}
+                active={countersActive}
+              />
+            ))}
+          </div>
+
+          <div style={{
+            width: isMobile ? '100%' : '65%',
+            margin: '0 auto',
+            marginTop: '28px',
+            marginBottom: '32px',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: '1px solid #222',
+            boxShadow: '0 0 24px rgba(249,115,22,0.08)',
+            position: 'relative'
+          }}>
+            <Image
+              src='/Taxhub.png'
+              alt='TaxHub app screenshot'
+              width={1200}
+              height={800}
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+                objectFit: 'cover',
+                objectPosition: 'top'
+              }}
+            />
+          </div>
+
+          <div
+            className="grid grid-cols-3 gap-3"
+            style={{ gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", marginTop: '32px' }}
+          >
+            {TAXHUB_BUILD_CARDS.map((card) => (
+              <div
+                key={card.title}
+                className="rounded-[10px] border transition-colors duration-200 hover:border-[#f97316]"
+                style={{
+                  backgroundColor: "#141414",
+                  borderColor: "#1e1e1e",
+                  padding: "16px",
+                }}
+              >
+                <div className="flex items-center" style={{ gap: "8px" }}>
+                  <i
+                    className={`ti ${card.icon}`}
+                    style={{ fontSize: "16px", color: "#f97316" }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    style={{ fontSize: "12px", fontWeight: 600, color: "#f97316" }}
+                  >
+                    {card.title}
+                  </span>
+                </div>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: "#888880",
+                    lineHeight: 1.55,
+                    marginTop: "8px",
+                  }}
+                >
+                  {card.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div>
+        <p
+          className="max-w-[800px] font-medium leading-[1.75]"
+          style={{
+            color: "#f5f5f0",
+            fontSize: isMobile ? "18px" : "28px",
+            marginBottom: "40px",
+          }}
+        >
+          It sells as a deflection tool. It works as a revenue engine. Every
+          escalation the firm expected to cost time becomes a briefed,
+          conversion-ready consultation.
+        </p>
+
+        <div
+          className="w-full rounded-xl"
+          style={{
+            backgroundColor: "#141414",
+            border: "1.5px solid #f97316",
+            padding: "28px 32px",
+            boxShadow: "0 0 20px rgba(249,115,22,0.08)",
+          }}
+        >
+          {TAXHUB_INSIGHT_ROWS.map((row, index) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between"
+              style={{
+                display: isMobile ? "flex" : undefined,
+                justifyContent: "space-between",
+                alignItems: isMobile ? "flex-start" : undefined,
+                gap: isMobile ? "12px" : undefined,
+                padding: "10px 0",
+                borderBottom:
+                  index < TAXHUB_INSIGHT_ROWS.length - 1
+                    ? "1px solid #1e1e1e"
+                    : "none",
+                fontSize: "14px",
+              }}
+            >
+              <span style={{ color: "#888880", flex: isMobile ? 1 : undefined }}>
+                {row.label}
+              </span>
+              <span
+                style={{
+                  color: row.valueColor,
+                  textAlign: isMobile ? "right" : undefined,
+                  flexShrink: isMobile ? 0 : undefined,
+                  maxWidth: isMobile ? "50%" : undefined,
+                }}
+              >
+                {row.value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}
+        >
+          <a
+            href={TAXHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:bg-[#f97316] hover:text-[#0a0a0a]"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              border: "1.5px solid #f97316",
+              color: "#f97316",
+              background: "transparent",
+              padding: "10px 24px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Try TaxHub →
+          </a>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative"
+      style={{
+        height: "450vh",
+        position: "relative",
+        zIndex: 25,
+        margin: 0,
+        padding: 0,
+        marginBottom: "120px",
+      }}
+    >
+      <div
+        className="sticky top-0 h-screen w-full overflow-hidden"
+        style={{
+          background: "transparent",
+          zIndex: 25,
+          overflow: "visible",
+        }}
+      >
+        <div
+          className="absolute left-0 top-0 flex w-full items-center justify-between"
+          style={{
+            background: "rgba(10,10,10,0.5)",
+            backdropFilter: "blur(8px)",
+            borderBottom: "1px solid #1a1a1a",
+            padding: isMobile ? "16px 20px" : "28px 48px",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <Monogram initial={TAXHUB.initial} />
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="font-bold"
+                  style={{ color: "#f5f5f0", fontSize: isMobile ? "14px" : "24px" }}
+                >
+                  {TAXHUB.title}
+                </span>
+                <span
+                  className="text-[12px] font-semibold tracking-[0.18em]"
+                  style={{ color: "#f97316" }}
+                >
+                  {TAXHUB.category}
+                </span>
+              </div>
+              <div
+                className="mt-1 h-[3px]"
+                style={{
+                  backgroundColor: "#f97316",
+                  width: underlineOn ? "100%" : "0%",
+                  transition: "width 0.7s ease",
+                }}
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Collapse"
+            className="text-xl leading-none"
+            style={
+              isMobile
+                ? { color: "#888880", position: "absolute", top: "16px", right: "16px" }
+                : { color: "#888880" }
+            }
+          >
+            ×
+          </button>
+        </div>
+
+        <div
+          className="absolute left-0 right-0"
+          style={{
+            background: "transparent",
+            padding: isMobile ? "0 20px" : "0 120px",
+            top: isMobile ? "80px" : "100px",
+          }}
+        >
+          <div className="relative flex items-center justify-between">
+            <div
+              className="absolute left-0 h-[1.5px] w-full"
+              style={{
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "#2a2a2a",
+              }}
+            />
+            <div
+              className="absolute left-0 h-[1.5px]"
+              style={{
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "#f97316",
+                width: fillWidth,
+                transition: "width 0.5s ease",
+              }}
+            />
+            {TAXHUB_STEPS.map((step, index) => {
+              const isActive = index === activeStep;
+              const isDone = index < activeStep;
+              return (
+                <div
+                  key={step.label}
+                  className="relative flex flex-col items-center gap-2"
+                >
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 text-[15px]"
+                    style={{
+                      borderColor: isActive || isDone ? "#f97316" : "#333333",
+                      backgroundColor: isActive
+                        ? "#f97316"
+                        : isDone
+                        ? "rgba(249,115,22,0.15)"
+                        : "rgba(10,10,10,0.4)",
+                      color: isActive ? "#0a0a0a" : isDone ? "#f97316" : "#444444",
+                    }}
+                  >
+                    <i className={`ti ${step.icon}`} aria-hidden="true" />
+                  </span>
+                  <span
+                    className="text-[9px] font-semibold tracking-[0.18em]"
+                    style={{ color: isActive ? "#f97316" : "#555555" }}
+                  >
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div
+          className="absolute left-0 right-0 text-left"
+          style={{
+            background: "transparent",
+            paddingLeft: isMobile ? "20px" : "120px",
+            paddingRight: isMobile ? "28px" : "128px",
+            paddingBottom: "40px",
+            overflowY: "auto",
+            maxHeight: "calc(100vh - 280px)",
+            scrollbarWidth: "thin",
+            scrollbarColor: "#f97316 #1a1a1a",
+            bottom: 0,
+            top: isMobile ? "160px" : "200px",
+          }}
+        >
+          <p
+            className="mb-7 text-[10px] font-semibold tracking-[0.22em]"
+            style={{ color: "#f97316" }}
+          >
+            {TAXHUB_STEPS[activeStep].label}
+          </p>
+
+          <div
+            style={{
+              opacity: contentVisible ? 1 : 0,
+              transform: contentVisible ? "translateY(0)" : "translateY(12px)",
+              transition: "opacity 0.45s ease, transform 0.45s ease",
+              paddingBottom: "40px",
+            }}
+          >
+            {renderStepContent(activeStep, activeStep === 1)}
+          </div>
+        </div>
+
+        <p
+          className="absolute bottom-6 left-0 w-full animate-[softPulse_2s_ease-in-out_infinite] text-center text-[11px] tracking-[0.1em]"
+          style={{
+            color: "#333333",
+            background: "transparent",
+            borderTop: "none",
+            pointerEvents: "none",
+          }}
+        >
+          {isLastStep ? "scroll down ↓" : "scroll to continue ↓"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function FieldWork() {
   const [peecExpanded, setPeecExpanded] = useState(false);
   const [beyondPresenceExpanded, setBeyondPresenceExpanded] = useState(false);
+  const [taxHubExpanded, setTaxHubExpanded] = useState(false);
   const isMobile = useIsMobile();
   const sectionPadding = { paddingLeft: isMobile ? "16px" : "80px", paddingRight: isMobile ? "16px" : "80px" };
 
@@ -1386,6 +1954,17 @@ export default function FieldWork() {
             <CollapsedCard
               project={BEYOND_PRESENCE}
               onExpand={() => setBeyondPresenceExpanded(true)}
+            />
+          </div>
+        )}
+
+        {taxHubExpanded ? (
+          <ExpandedTaxHubBlock onClose={() => setTaxHubExpanded(false)} />
+        ) : (
+          <div className="relative" style={{ position: "relative", zIndex: 5, ...sectionPadding }}>
+            <CollapsedCard
+              project={TAXHUB}
+              onExpand={() => setTaxHubExpanded(true)}
             />
           </div>
         )}
