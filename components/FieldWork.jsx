@@ -29,7 +29,7 @@ const PEEC_TOOL_LINKS = {
     "https://fate-nectarine-2fb.notion.site/The-Recommendation-Vacuum-How-AI-Search-Fails-European-B2B-SaaS-at-the-Moment-of-Purchase-392f852bfaa6802cb4abfc84f970871b",
   "Google Sheets":
     "https://docs.google.com/spreadsheets/d/1tmZqRnO91lV2LEZUyGYUCLhMLKCypiF0fW4GyOPzFMU/edit?usp=sharing",
-  Loom: "https://www.loom.com/share/428ca4c8466b46c0995f2e807338e191",
+  Loom: "https://www.loom.com/share/dd65088e04b4426b94611ed3f6aa5035",
 };
 
 const BEYOND_PRESENCE_LOOM_LINK =
